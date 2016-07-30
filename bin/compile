@@ -17,7 +17,7 @@ status() {
   echo "-----> $*"
 }
 
-node_version=$(curl --silent --get https://semver.io/node/resolve/0.10.x)
+node_version=$(curl --silent --get https://semver.io/node/resolve/4.4.x)
 
 install_node() {
   if [ -f "$BUILD_DIR/.vendor/node/bin/node" ] ; then
@@ -36,7 +36,7 @@ install_node() {
   mkdir -p $BUILD_DIR/.vendor
   mv $BUILD_DIR/node-v$node_version-linux-x64 $BUILD_DIR/.vendor/node
   chmod +x $BUILD_DIR/.vendor/node/bin/*
-  PATH=$BUILD_DIR/.vendor/node/bin:$PATH
+  export PATH=$BUILD_DIR/.vendor/node/bin:$PATH
 }
 
 install_meteor() {
@@ -44,43 +44,43 @@ install_meteor() {
     status "Skipping Meteor installation. Already installed."
     return
   fi
-
-  # status "Install Meteor"
-  # export PATH=/usr/bin:$PATH # necessary for install script to run from URL
-  # curl https://install.meteor.com | sh
+  
+  status "Updating PATH with Meteor"
+  export PATH=$HOME/.meteor:$PATH
+  
   status "Downloading Meteor install script"
   METEOR_INSTALL_SCRIPT=install_meteor.sh
   curl https://install.meteor.com/ > $METEOR_INSTALL_SCRIPT
 
-  status "Installing Meteor connected to $MONGO_URL"
-  sed -e '/^#!\/bin\/sh/ s/$/ -x/' \
-    -e 's/set -/#set -/' \
-    -e 's/curl --progress-bar --fail.*/curl "$TARBALL_URL" > meteor-bundle.tgz; tar -xzf meteor-bundle.tgz -C "$INSTALL_TMPDIR" -o/' \
-    $METEOR_INSTALL_SCRIPT > install-meteor-verbose.sh
-  chmod +x install-meteor-verbose.sh
+  status "Installing Meteor"
+  chmod +x $METEOR_INSTALL_SCRIPT
 
-  status "Execute ./install-meteor-verbose.sh"
-  ./install-meteor-verbose.sh
+  status "Execute ./$METEOR_INSTALL_SCRIPT"
+  ./$METEOR_INSTALL_SCRIPT
   status "Done"
-
-  status "Updating PATH with Meteor"
-  PATH=$HOME/.meteor:$PATH
+  
 }
 
 build() {
   (
     cd $BUILD_DIR
-    status "Building meteor bundle"
-    meteor build --directory deploy --server http://localhost:3000
-    cd deploy/bundle/programs/server
-    status "Installing npm dependencies"
+    status "Installing npm dependencies for building"
     npm install 2>&1 | indent
+    status "Building meteor bundle"
+    meteor build --directory deploy --server http://localhost:3000 --architecture os.linux.x86_64
+    cd deploy/bundle/programs/server
+    status "Installing npm dependencies for server"
+    npm install 2>&1 | indent
+    npm rebuild 2>&1 | indent
+    cd npm/node_modules/meteor/npm-bcrypt
+    status "Installing bcrypt for server"
+    npm install bcrypt 2>&1 | indent
     mv $BUILD_DIR/.vendor $BUILD_DIR/vendor
   )
 }
 
-[ ! -d $BUILD_DIR ] && mkdir $BUILD_DIR
-[ ! -d $CACHE_DIR ] && mkdir $CACHE_DIR
+[ ! -d $BUILD_DIR ] && mkdir $BUILD_DIR; status "Created build dir: $BUILD_DIR"
+[ ! -d $CACHE_DIR ] && mkdir $CACHE_DIR; status "Created cache dir: $CACHE_DIR"
 
 install_node
 install_meteor
