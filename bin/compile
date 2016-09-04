@@ -75,6 +75,7 @@ build() {
     cd npm/node_modules/meteor/npm-bcrypt
     status "Installing bcrypt for server"
     npm install bcrypt 2>&1 | indent
+    npm install simplesmtp 2>&1 | indent
     mv $BUILD_DIR/.vendor $BUILD_DIR/vendor
   )
 }
