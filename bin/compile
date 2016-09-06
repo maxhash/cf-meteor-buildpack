@@ -67,7 +67,7 @@ build() {
     status "Installing npm dependencies for building"
     npm install 2>&1 | indent
     status "Building meteor bundle"
-    meteor build --directory deploy --server http://localhost:3000 --architecture os.linux.x86_64
+    meteor build --debug --directory deploy --server http://localhost:3000 --architecture os.linux.x86_64
     cd deploy/bundle/programs/server
     status "Installing npm dependencies for server"
     npm install 2>&1 | indent
