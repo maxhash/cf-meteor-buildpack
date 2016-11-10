@@ -83,10 +83,17 @@ build() {
 [ ! -d $BUILD_DIR ] && mkdir $BUILD_DIR; status "Created build dir: $BUILD_DIR"
 [ ! -d $CACHE_DIR ] && mkdir $CACHE_DIR; status "Created cache dir: $CACHE_DIR"
 
+echo "diskspace before install_node"
+df -h
 install_node
+echo "diskspace before install_meteor"
+df -h
 install_meteor
+echo "diskspace before build"
+df -h
 build
-
+echo "diskspace after build"
+df -h
 status "Checking for post_compile script"
 if [ -f $BUILD_DIR/bin/post_compile ] ; then
     status "Running post_compile hook"
