@@ -50,7 +50,7 @@ install_meteor() {
   
   status "Downloading Meteor install script"
   METEOR_INSTALL_SCRIPT=install_meteor.sh
-  curl https://install.meteor.com/ > $METEOR_INSTALL_SCRIPT
+  curl https://install.meteor.com/?release=1.4.2 > $METEOR_INSTALL_SCRIPT
 
   status "Installing Meteor"
   chmod +x $METEOR_INSTALL_SCRIPT
