@@ -18,6 +18,7 @@ status() {
 }
 
 node_version=$(curl --silent --get https://semver.io/node/resolve/4.4.x)
+meteor_version="1.4.2"
 
 install_node() {
   if [ -f "$BUILD_DIR/.vendor/node/bin/node" ] ; then
@@ -50,7 +51,7 @@ install_meteor() {
   
   status "Downloading Meteor install script"
   METEOR_INSTALL_SCRIPT=install_meteor.sh
-  curl https://install.meteor.com/?release=1.4.2 > $METEOR_INSTALL_SCRIPT
+  curl https://install.meteor.com/?release=$meteor_version > $METEOR_INSTALL_SCRIPT
 
   status "Installing Meteor"
   chmod +x $METEOR_INSTALL_SCRIPT
@@ -83,17 +84,10 @@ build() {
 [ ! -d $BUILD_DIR ] && mkdir $BUILD_DIR; status "Created build dir: $BUILD_DIR"
 [ ! -d $CACHE_DIR ] && mkdir $CACHE_DIR; status "Created cache dir: $CACHE_DIR"
 
-echo "diskspace before install_node"
-df -h
 install_node
-echo "diskspace before install_meteor"
-df -h
 install_meteor
-echo "diskspace before build"
-df -h
 build
-echo "diskspace after build"
-df -h
+
 status "Checking for post_compile script"
 if [ -f $BUILD_DIR/bin/post_compile ] ; then
     status "Running post_compile hook"
