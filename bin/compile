@@ -18,7 +18,7 @@ status() {
 }
 
 node_version=$(curl --silent --get https://semver.io/node/resolve/4.4.x)
-meteor_version="1.4.2"
+meteor_version="1.2.1"
 
 install_node() {
   if [ -f "$BUILD_DIR/.vendor/node/bin/node" ] ; then
